@@ -1,21 +1,21 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import pickle
 import numpy as np
 
 app = Flask(__name__)
 
-# Load trained model
 model = pickle.load(open("model.pkl", "rb"))
 
+# 🔹 Load website UI
 @app.route("/")
 def home():
-    return "Resume Screening API is running"
+    return render_template("index.html")
 
+# 🔹 API for prediction
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
 
-    # Example features (must match your training order)
     features = np.array([[
         data["experience"],
         data["projects"],
@@ -28,10 +28,7 @@ def predict():
 
     result = "Proceed to Interview" if prediction == 1 else "Reject"
 
-    return jsonify({
-        "prediction": int(prediction),
-        "result": result
-    })
+    return jsonify({"result": result})
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
